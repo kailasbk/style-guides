@@ -1,12 +1,13 @@
 # (System)Verilog Style Guide
 
-The following is a style guide for Verilog and SystemVerilog, especially for the
-synthesis constructs of the languages.
+The following is a style guide for Verilog and SystemVerilog, especially for
+the synthesis constructs of the languages.
 
 ## Alignment
 
-Tab size of 2 spaces should be used throughout for indentation. Verilog code can
-become very tab heavy at times, so a tab size of 4 will use up a lot of space.
+Tab size of 2 spaces should be used throughout for indentation. Verilog code
+can become very tab heavy at times, so a tab size of 4 will use up a lot of
+space.
 
 ## Signals
 
@@ -28,24 +29,24 @@ All signal names should be in snake case (e.g `uart_baud_counter`).
 
 Signal names should also follow the following conventions:
 - For signals without the typical active high usage, suffixes should be added
-for clarity.
+  for clarity.
   - For active low signals, the `_n` suffix should be added (e.g. `rst_n`).
   - For differential pairs, the `_p` suffix should be added to the active high
-  signal while the `_n` suffix should be added to the active low signal (e.g.
-  `sync_p` and `sync_n`).
+    signal while the `_n` suffix should be added to the active low signal (e.g.
+    `sync_p` and `sync_n`).
 - Names should generally be descriptive, so avoid names like `a` and `value`.
   - For handshake signals, generally keep to the `valid` and `ready` signal
-  names, unless the semantics of the handshake differ from the typical AXI4
-  handshake.
+    names, unless the semantics of the handshake differ from the typical AXI4
+    handshake.
   - Boolean-like signals should be named either after what they represent (e.g.
-  `is_about_to_overflow` or `can_decode`) or the action that occurs when the
-  signal goes high (e.g. `clear_fifo` or `increment_ptr`).
+    `is_about_to_overflow` or `can_decode`) or the action that occurs when the
+    signal goes high (e.g. `clear_fifo` or `increment_ptr`).
 
 ### Declaration
 
-Some tools (like Vivado) will allow signals to be declared anywhere in the scope
-that they are used, but non-port signals should generally be declared shortly
-before their first reference.
+Some tools (like Vivado) will allow signals to be declared anywhere in the
+scope that they are used, but non-port signals should generally be declared
+shortly before their first reference.
 
 Related signals should be tabularly aligned, with spaces, with alignment being
 towards the right (i.e. towards the name instead of the `logic` keyword). There
@@ -74,13 +75,13 @@ logic [3:0][63:0] bus_data;
 
 The reasons for right alignment are as follows:
 - Almost all logic array declarations have `0` as the LSB, so the LSB portions
-of the declarations align.
+  of the declarations align.
 - When array sizes in an aligned block differ, it is easier to read if the
-array dimensions are next to the signal names (you already know that it is type
-`logic`).
+  array dimensions are next to the signal names (you already know that it is
+  type `logic`).
 
-Using spaces instead of tabs for alignment may seem tedious, but with tab set to
-2 spaces, the space key only needs to be used at most once per line.
+Using spaces instead of tabs for alignment may seem tedious, but with tab set
+to 2 spaces, the space key only needs to be used at most once per line.
 
 ### Reuse
 
@@ -96,13 +97,13 @@ However, for internal module signals, when to instantiate a new signal is less
 objective. This guide suggests the following situations for when to make a new
 signal:
 - A given function of two or more signals is used more than once in the module.
-For example, the expression `!full && res_valid && no_error` is used on 3
-seperate occassions in the module, so making a new signal `store_result` would
-be more concise and reduce the chance of typos.
-- The signal is a portion of a larger signal such that the name of the array
-is not adequately descriptive of the child signals. For example, a packed array
-`coords[29:0]` contains `x[9:0]`, `y[9:0]` and `z[9:0]`. Making the three new
-signals add clarity to what they represent.
+  For example, the expression `!full && res_valid && no_error` is used on 3
+  seperate occassions in the module, so making a new signal `store_result`
+  would be more concise and reduce the chance of typos.
+- The signal is a portion of a larger signal such that the name of the array is
+  not adequately descriptive of the child signals. For example, a packed array
+  `coords[29:0]` contains `x[9:0]`, `y[9:0]` and `z[9:0]`. Making the three new
+  signals add clarity to what they represent.
 
 Of course, if a signal is needed to represent some storage or logic, make that
 signal; this guidance is just for signals that are aliases for existing logic
@@ -121,9 +122,9 @@ instead of the bitwise operators.
 More concretely, use `||`, `&&` and `!` over their respective bitwise
 counterparts, being `|`, `&`, and `!`.
 
-Do not rely on implicit casting down to 1-bit from more than 1-bit signals. This
-may work in languages like C, but the width conversion semantics in Verilog are
-not the same.
+Do not rely on implicit casting down to 1-bit from more than 1-bit signals.
+This may work in languages like C, but the width conversion semantics in
+Verilog are not the same.
 
 ```sv
 logic [3:0] count;
@@ -166,18 +167,18 @@ bugs.
 
 There are four universal rules that can be applied to begin-end statements:
 - Any section of code that does not reside on the same line as its parent
-should be enclosed in a begin-end statement. It is possible to skip the block
-statement in some cases, like a single line after an `if` or an if-else after
-an `always_ff`, but this can lead to bugs later when modifications are made.
+  should be enclosed in a begin-end statement. It is possible to skip the block
+  statement in some cases, like a single line after an `if` or an if-else after
+  an `always_ff`, but this can lead to bugs later when modifications are made.
 - The `begin` statement should *always* be on the same line as the block's
-parent statement, whether it be if-else, a process, a case element, etc.
+  parent statement, whether it be if-else, a process, a case element, etc.
 - Remember that `module`, `case`, and `function` do not use block statements
-and are instead closed with `endmodule`, `endcase`, and `endfunction`.
-Especially with `case`, it can be easy to mistakenly use `begin` and `end` and
-get an unexpected syntax error.
+  and are instead closed with `endmodule`, `endcase`, and `endfunction`.
+  Especially with `case`, it can be easy to mistakenly use `begin` and `end`
+  and get an unexpected syntax error.
 - Sequential block statements should never be used by themselves in
-synthesizable code. This can have some use when combined with fork-join
-parallel block statements in simulation code, but serves no purpose in RTL.
+  synthesizable code. This can have some use when combined with fork-join
+  parallel block statements in simulation code, but serves no purpose in RTL.
 
 The placement of the `end` keyword is somewhat up to personal taste, like in
 the following examples.
@@ -229,8 +230,8 @@ end
 ### `if`/`else if`/`else` statements
 
 The `begin` and `end` *can*, but do not need to be, omitted in the case of one
-line statements. However, do not place statements on the next line without
-a begin-end block, as if subsequent statements are added later, they will not
+line statements. However, do not place statements on the next line without a
+begin-end block, as if subsequent statements are added later, they will not
 properly nest, leading to bugs. For example, see the following cases:
 
 ```sv
@@ -253,8 +254,8 @@ else
 ```
 
 It should be noted, however, that cases like the above, where a the value of a
-single variable is set based on a set of conditions, can also be written with
-a single ternary statement. In the above case, it would look like:
+single variable is set based on a set of conditions, can also be written with a
+single ternary statement. In the above case, it would look like:
 
 ```sv
 counter = (clear_counter) ? 1'b0 : old_counter;
@@ -329,25 +330,26 @@ end else begin
 end
 ```
 
-Only use defaults when that is the true desired behavior (i.e. if you would have
-written an else statement), and the `default` case
-should always be written as the last case in the list. Thus, do not write empty
-default cases, as that defeats the purpose of the `unique` case statement. If you
-write a `default` case on a `unique case` statement that should exclusive, it defeats
-the purpose of using `unique` in the first place. Thus, there are three variants of
-the case statement that are appropriate to use:
+Only use defaults when that is the true desired behavior (i.e. if you would
+have written an else statement), and the `default` case should always be
+written as the last case in the list. Thus, do not write empty default cases,
+as that defeats the purpose of the `unique` case statement. If you write a
+`default` case on a `unique case` statement that should exclusive, it defeats
+the purpose of using `unique` in the first place. Thus, there are three
+variants of the case statement that are appropriate to use:
 - A `unique case` statement without a `default` where it is expected that there
-will always be at least one case which matches. This is generally the case for state
-machines and easily flags states with missing implementations.
-- A `unique case` statement with a `default` that sets the signals to their default
-values when none of the cases match (which is expected to happen sometimes), like
-the decoder example above.
+  will always be at least one case which matches. This is generally the case
+  for state machines and easily flags states with missing implementations.
+- A `unique case` statement with a `default` that sets the signals to their
+  default values when none of the cases match (which is expected to happen
+  sometimes), like the decoder example above.
 - A `case` statement without a `default` where the signals altered by the case
-statement have already been set before the case statement.
+  statement have already been set before the case statement.
 
-Again, to choose between the second and third option, which accomplish similar logic,
-defer to how the logic would be best implemented with if-statements. If an else
-statement would have been used, use the former, and if not, use the latter.
+Again, to choose between the second and third option, which accomplish similar
+logic, defer to how the logic would be best implemented with if-statements. If
+an else statement would have been used, use the former, and if not, use the
+latter.
 
 ## Modules
 
@@ -420,8 +422,8 @@ module super_cool_decoder
 
 All ports should be declared with an explicit `input`, `output`, or `inout`
 directionality, and should be type `logic` unless they are an input, in which
-case they should be type `wire` (with `default_nettype none`, `logic` can't
-be used for inputs to preserve compatibility between Verilog and SystemVerilog
+case they should be type `wire` (with `default_nettype none`, `logic` can't be
+used for inputs to preserve compatibility between Verilog and SystemVerilog
 :|).
 
 As a minimal guard against confusion of similarly named signals, and so that
@@ -430,9 +432,9 @@ names should have the following suffixes denoting their directionality:
 - Input ports should have the `_i` suffix.
 - Output ports should have the `_o` suffix.
 - Bidirectional (`inout`) ports should have the `_io` suffix.
-- The directionality suffix should come after `_n` or `_p` suffixes, but without
-another underscore (e.g. `rst_ni` for an active low input or `data_po` and 
-`data_no` for differential output)
+- The directionality suffix should come after `_n` or `_p` suffixes, but
+  without another underscore (e.g. `rst_ni` for an active low input or
+  `data_po` and `data_no` for differential output)
 
 All related ports should tabularly aligned together. For example, the clock and
 reset signals can be aligned together while the signals comprising an AXI4
@@ -464,8 +466,8 @@ module super_cool_decoder
 All module parameters should be declared in the parameter list in the module
 header. Use upper camel case for parameter names (e.g `LogFifoDepth`).
 
-Any parameters that should not be directly set at instantiation should be set as
-local parameters with the `localparam` keyword. Local parameters should
+Any parameters that should not be directly set at instantiation should be set
+as local parameters with the `localparam` keyword. Local parameters should
 generally be declared at the beginning of the module body.
 
 For local parameters whose values are computed based on the values of
@@ -547,9 +549,10 @@ point being that the value does not wait for other events to change),
 `always_comb` blocks should include exclusively blocking assignments (made with
 the `=` operator).
 
-In order to assure that an `always_comb` does not cause the creation of a latch,
-each logic written to by the `always_comb` must also have a default value set at
-the beginning of the process (which is not dependent on the value of the logic).
+In order to assure that an `always_comb` does not cause the creation of a
+latch, each logic written to by the `always_comb` must also have a default
+value set at the beginning of the process (which is not dependent on the value
+of the logic).
 
 For example, the following would cause latch to be inferred:
 
@@ -651,10 +654,10 @@ always_ff @(posedge clk) begin
 end
 ```
 
-Sequential logic is supposed to wait for the clock edge to take new values, with
-only values from before the edge impacting the values after the edge, so only
-nonblocking assignments (those made with the `<=` operator) should be used in
-`always_ff` blocks.
+Sequential logic is supposed to wait for the clock edge to take new values,
+with only values from before the edge impacting the values after the edge, so
+only nonblocking assignments (those made with the `<=` operator) should be used
+in `always_ff` blocks.
 
 If the blocking `=` operator is used, it is possible for this separation to be
 broken, like in the following example:
