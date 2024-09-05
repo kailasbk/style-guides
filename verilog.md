@@ -111,8 +111,6 @@ or signals.
 
 ## Operators, expressions, and statements
 
-In general, as
-
 ### Logical operators
 
 For creating boolean logic, or logic that writes a 1-bit signal that is
@@ -120,7 +118,7 @@ interpreted as a true or false value, the logical operators should be used
 instead of the bitwise operators.
 
 More concretely, use `||`, `&&` and `!` over their respective bitwise
-counterparts, being `|`, `&`, and `!`.
+counterparts, being `|`, `&`, and `~`.
 
 Do not rely on implicit casting down to 1-bit from more than 1-bit signals.
 This may work in languages like C, but the width conversion semantics in
@@ -235,20 +233,24 @@ begin-end block, as if subsequent statements are added later, they will not
 properly nest, leading to bugs. For example, see the following cases:
 
 ```sv
+logic       clear_counter;
+logic [3:0] counter;
+logic [3:0] old_counter;
+
 // this is OK
-if (clear_counter) counter = 1'b0;
+if (clear_counter) counter = 4'd0;
 else               counter = old_counter;
 
 // this is also OK
 if (clear_counter) begin
-  counter = 1'b0;
+  counter = 4'd0;
 end else begin
   counter = old_counter;
 end
 
 // don't do this, can lead to bugs later
 if (clear_counter)
-  counter = 1'b0;
+  counter = 4'd0;
 else
   counter = old_counter;
 ```
@@ -258,11 +260,11 @@ single variable is set based on a set of conditions, can also be written with a
 single ternary statement. In the above case, it would look like:
 
 ```sv
-counter = (clear_counter) ? 1'b0 : old_counter;
+counter = (clear_counter) ? 4'd0 : old_counter;
 
 // can also work for more conditions
-counter = clear_counter ? 1'b0               :
-          inc_counter   ? old_counter + 1'b1 :
+counter = clear_counter ? 4'd0               :
+          inc_counter   ? old_counter + 1'd1 :
                           old_counter        ;
 ```
 
@@ -328,6 +330,19 @@ end else begin
   deq_ptr = 1'b0;
   data_o = '0;
 end
+
+// like this is valid...
+// but just looks wrong
+case (rec_ready && snd_valid)
+  1: begin
+    deq_ptr = 1'b1;
+    data_o = fifo_data;
+  end
+  0: begin
+    deq_ptr = 1'b0;
+    data_o = '0;
+  end
+endcase
 ```
 
 Only use defaults when that is the true desired behavior (i.e. if you would
@@ -444,11 +459,12 @@ interface together seperately. Like before, alignment should be to the right.
 like the following:
 
 ```sv
-module super_cool_decoder
+module super_cool_adder
 (
   // clock and reset
   input  wire  clk_i,
   input  wire  rst_ni,
+  output logic active_o,
   // input interface
   input  wire        valid_i,
   output logic       ready_o,
@@ -535,14 +551,16 @@ descibe with with ternary and boolean expressions.
 
 Do not use the older `always` procedures from Verilog. Instead, use the
 `always_comb` procedure for combinational logic, `always_ff` for sequential
-logic that uses flip-flops, and `always_latch` for latched logic.
+logic that uses flip-flops, and `always_latch` for latched logic. Using these
+processes also helps EDA tools report when the implemented logic does not
+match the process type (i.e. latches in an `always_comb`).
 
 Latches should generally be avoided as they can make meeting timing constraints
 difficult for EDA tools and similar logic can be written with FFs.
 
 #### `always_comb` blocks
 
-Outside of continous assignments, combinational logic can also be written using
+Outside of continuous assignments, combinational logic can also be written using
 `always_comb` blocks. Given that combinational logic should be viewed as
 updating immediately (in synthesized reality there is a delay, but the main
 point being that the value does not wait for other events to change),
