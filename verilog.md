@@ -98,8 +98,8 @@ objective. This guide suggests the following situations for when to make a new
 signal:
 - A given function of two or more signals is used more than once in the module.
   For example, the expression `!full && res_valid && no_error` is used on 3
-  seperate occassions in the module, so making a new signal `store_result`
-  would be more concise and reduce the chance of typos.
+  separate occasions in the module, so making a new signal `store_result` would
+  be more concise and reduce the chance of typos.
 - The signal is a portion of a larger signal such that the name of the array is
   not adequately descriptive of the child signals. For example, a packed array
   `coords[29:0]` contains `x[9:0]`, `y[9:0]` and `z[9:0]`. Making the three new
@@ -255,7 +255,7 @@ else
   counter = old_counter;
 ```
 
-It should be noted, however, that cases like the above, where a the value of a
+It should be noted, however, that cases like the above, where the value of a
 single variable is set based on a set of conditions, can also be written with a
 single ternary statement. In the above case, it would look like:
 
@@ -270,7 +270,7 @@ counter = clear_counter ? 4'd0               :
 
 ### `case` statements
 
-Case statements are often used as a more consise alternative to if-else
+Case statements are often used as a more concise alternative to if-else
 statements, and should be used whenever the logic occurs depending on the value
 of a single variable. Each case should have no space before the colon and a
 space after the colon. Begin-end blocks are required if a case has more than
@@ -451,9 +451,14 @@ names should have the following suffixes denoting their directionality:
   without another underscore (e.g. `rst_ni` for an active low input or
   `data_po` and `data_no` for differential output)
 
+An alternative scheme for port names is to use `_in` for inputs, `_out` for
+outputs and `_inout` for bidirectional ports. This is also fine. Just generally
+stick to the same scheme for a given module (i.e. don't use both `_i` and `_in`
+or use `_i` with `_out`).
+
 All related ports should tabularly aligned together. For example, the clock and
 reset signals can be aligned together while the signals comprising an AXI4
-interface together seperately. Like before, alignment should be to the right.
+interface together separately. Like before, alignment should be to the right.
 
 `input wire` ports should have extra spaces to align with `output logic` ports,
 like the following:
@@ -542,26 +547,26 @@ assign can_issue = inst_valid && regs_ready && !execute_stall;
 assign counter_inc = counter + 1'b1;
 ```
 
-Continous assignments should not be used when it would make more sense to use
+Continuous assignments should not be used when it would make more sense to use
 an `if` or `case` statement to describe logic, like when multiple signals are
 set based on a given condition, or when logical precedence is not easy to
-descibe with with ternary and boolean expressions.
+describe with with ternary and boolean expressions.
 
 ### Procedures
 
 Do not use the older `always` procedures from Verilog. Instead, use the
 `always_comb` procedure for combinational logic, `always_ff` for sequential
 logic that uses flip-flops, and `always_latch` for latched logic. Using these
-processes also helps EDA tools report when the implemented logic does not
-match the process type (i.e. latches in an `always_comb`).
+processes also helps EDA tools report when the implemented logic does not match
+the process type (i.e. latches in an `always_comb`).
 
 Latches should generally be avoided as they can make meeting timing constraints
 difficult for EDA tools and similar logic can be written with FFs.
 
 #### `always_comb` blocks
 
-Outside of continuous assignments, combinational logic can also be written using
-`always_comb` blocks. Given that combinational logic should be viewed as
+Outside of continuous assignments, combinational logic can also be written
+using `always_comb` blocks. Given that combinational logic should be viewed as
 updating immediately (in synthesized reality there is a delay, but the main
 point being that the value does not wait for other events to change),
 `always_comb` blocks should include exclusively blocking assignments (made with
@@ -674,8 +679,8 @@ end
 
 Sequential logic is supposed to wait for the clock edge to take new values,
 with only values from before the edge impacting the values after the edge, so
-only nonblocking assignments (those made with the `<=` operator) should be used
-in `always_ff` blocks.
+only non-blocking assignments (those made with the `<=` operator) should be
+used in `always_ff` blocks.
 
 If the blocking `=` operator is used, it is possible for this separation to be
 broken, like in the following example:
@@ -698,9 +703,9 @@ In the above case, the incremented value of `counter` is seen by the next line,
 so `overflowed` becomes `1` the cycle before the overflow actually occurs (when
 incrementing from `3'd7` to `3'd0`).
 
-There may be a temptation to mix blocking and nonblocking assignments in
+There may be a temptation to mix blocking and non-blocking assignments in
 `always_ff` blocks, but to ensure clarity and correctness, if is better to
-instead separate logic into two seperate complementary blocks, which will be
+instead separate logic into two separate complementary blocks, which will be
 discussed in the following section.
 
 ### Complementary procedures
